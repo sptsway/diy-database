@@ -1,0 +1,5 @@
+
+# ignore all storage
+/storage
+
+*/DS_Store
