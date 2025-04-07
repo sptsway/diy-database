@@ -12,11 +12,11 @@ func main() {
 }
 
 func run() {
-	tableName := flag.String("table", "default", "name of the table")
+	tableName := flag.String("table", "default_table", "use -table <name> to select the table")
 	create := flag.Bool("create", false, "use -create to create a new table")
-	getCmd := flag.String("get", "", "--get <key> to get the value of the key")
-	setCmd := flag.String("set", "", "--set <key>=<value> to set the value of the key")
-	deleteCmd := flag.String("delete", "", "--delete <key> to delete the key")
+	getCmd := flag.String("get", "", "-get <key> to get the value of the key")
+	setCmd := flag.String("set", "", "-set <key>=<value> to set the value of the key")
+	deleteCmd := flag.String("delete", "", "-delete <key> to delete the key")
 	flag.Parse()
 
 	params := make([]database.Params, 0)
