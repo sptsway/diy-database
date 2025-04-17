@@ -21,7 +21,7 @@ go run diyd/src/cmd -table example -get <key>
 
 set key
 ```
-go run diyd/src/cmd -table example -get <key>=<value>
+go run diyd/src/cmd -table example -set <key>=<value>
 ```
 
 delete key
