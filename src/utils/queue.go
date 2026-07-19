@@ -2,7 +2,6 @@ package utils
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 )
 
@@ -44,7 +43,8 @@ func NewQueue[A any](params ...Params[A]) Queue[A] {
 		// default inits
 		// mtx:      sync.RWMutex{},
 	}
-	q.cond = sync.NewCond(&q.mtx)
+	q.notFull = sync.NewCond(&q.mtx)
+	q.notEmpty = sync.NewCond(&q.mtx)
 
 	for _, p := range params {
 		p(q)
@@ -57,7 +57,7 @@ type queue[A any] struct {
 	arr                  []A
 	head, tail, capacity int
 	mtx                  sync.RWMutex
-	cond                 *sync.Cond
+	notFull, notEmpty    *sync.Cond
 }
 
 // WaitAndPush to back of the queue
@@ -65,13 +65,11 @@ func (q *queue[A]) WaitAndPush(a A) {
 	q.mtx.Lock()
 	defer func() {
 		q.mtx.Unlock()
-		q.cond.Signal() // used to singal empty-q's pop
+		q.notEmpty.Signal() // used to singal empty-q's pop
 	}()
 	// queue is full, wait for pushing
-	fmt.Print("xxxsize is:", q.size())
 	for q.size() == q.capacity {
-		fmt.Print("size is:", q.size())
-		q.cond.Wait()
+		q.notFull.Wait()
 	}
 
 	q.forcepush(a)
@@ -82,7 +80,7 @@ func (q *queue[A]) Push(a A) error {
 	q.mtx.Lock()
 	defer func() {
 		q.mtx.Unlock()
-		q.cond.Signal() // used to singal empty-q's pop
+		q.notEmpty.Signal() // used to singal empty-q's pop
 	}()
 
 	if q.size() == q.capacity {
@@ -108,10 +106,10 @@ func (q *queue[A]) WaitAndPop() A {
 	q.mtx.Lock()
 	defer func() {
 		q.mtx.Unlock()
-		q.cond.Signal() // used to singal full-q's push
+		q.notFull.Signal() // used to singal full-q's push
 	}()
 	for q.size() == 0 {
-		q.cond.Wait()
+		q.notEmpty.Wait()
 	}
 
 	return q.forcepop()
@@ -122,7 +120,7 @@ func (q *queue[A]) Pop() (A, error) {
 	q.mtx.Lock()
 	defer func() {
 		q.mtx.Unlock()
-		q.cond.Signal() // used to singal full-q's push
+		q.notFull.Signal() // used to singal full-q's push
 	}()
 
 	if q.size() == 0 {
