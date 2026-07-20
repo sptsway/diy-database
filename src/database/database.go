@@ -28,17 +28,13 @@ func NewKVStore(params ...Params) (KeyValueStore, error) {
 	return kv, nil
 }
 
-func WithNewTable(tname string) Params {
+func WithCreateTable(tname string) Params {
 	return func(kv *kvstore) error {
-		err := utils.CreateNewTable(config.DefaultDirectoryPath, tname)
-		if err != nil {
-			return err
-		}
-		return WithExistingTable(tname)(kv)
+		return utils.CreateNewTable(config.DefaultDirectoryPath, tname)
 	}
 }
 
-func WithExistingTable(tname string) Params {
+func WithTable(tname string) Params {
 	return func(kv *kvstore) error {
 		kv.table.Directory = utils.GetTablePath(config.DefaultDirectoryPath, tname)
 		kv.table.Name = tname
