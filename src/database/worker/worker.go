@@ -6,14 +6,17 @@ import (
 	"sync"
 )
 
+const (
+	_KVWorkerCount = 100
+)
+
 type Params struct {
-	WC      int
 	KVStore database.KeyValueStore
 }
 
 func NewKVWorker(p Params) *KVWorker {
 	return &KVWorker{
-		wc:    p.WC,
+		wc:    _KVWorkerCount,
 		taskQ: utils.NewQueue[*Task](),
 		kvs:   p.KVStore,
 	}
